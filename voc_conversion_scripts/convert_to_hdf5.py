@@ -7,9 +7,6 @@ and store it in 'ImageSets/....txt'
 No need of separate dataset for 'val' as train-val split is implemented in the yolo_retrain.py
 '''
 
-
-
-
 import argparse
 import os
 import xml.etree.ElementTree as ElementTree
