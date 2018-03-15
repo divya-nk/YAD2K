@@ -1,5 +1,9 @@
 '''
 made few changes according to my dataset
+Folder structure
+data/Annotations - contains all annotations txt files
+data/PNGImages - contains all PNG files
+data/ImageSets - contains txt files with all files names listed (eg. train.txt, test.txt)
 
 Also included code to prepare individual text files (for train, val and test) that includes the list of files names
 and store it in 'ImageSets/....txt'
