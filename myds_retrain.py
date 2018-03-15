@@ -119,7 +119,16 @@ def get_preprocessed_data(data):
     
     return np.array(boxes_list, float), np.array(image_data_list, dtype=np.float)
 
-
+def boxprocessing(box_data):
+    processed_box_data = []
+    processed_box_data = np.array(processed_box_data)
+    
+    for i in range(len(box_data)):
+        z = np.zeros([1,20])
+        y = np.append(box_data[i], z)
+        y = y[0:20]
+        processed_box_data = np.append(processed_box_data, y)
+    return processed_box_data
 
 def get_detector_mask(boxes_list, anchors):
     '''
