@@ -29,7 +29,7 @@ argparser = argparse.ArgumentParser(
 argparser.add_argument(
     '-d',
     '--data_path',
-    help='path to HDF5 file containing pascal voc dataset',
+    help='path to HDF5 file containing own dataset',
     default='data/phaseI-dataset.hdf5')
 
 argparser.add_argument(
@@ -79,6 +79,10 @@ def _main(args):
         save_all=False)
     
 def get_preprocessed_data(data):
+    '''
+    function to preprocess hdf5 data
+    borrowed code from train_overfit and retrain_yolo and modified to suit my input dataset type (hdf5)
+    '''
     image_list = []
     boxes_list = []
     image_data_list = []
@@ -120,13 +124,14 @@ def get_preprocessed_data(data):
     return np.array(boxes_list, float), np.array(image_data_list, dtype=np.float)
 
 def boxprocessing(box_data):
+    #function assumes that there are a maximum of 4 bbox in an image
     processed_box_data = []
     processed_box_data = np.array(processed_box_data)
     
     for i in range(len(box_data)):
-        z = np.zeros([1,20])
+        z = np.zeros([1,20])    #change here, multiple of 5 - for more bbox
         y = np.append(box_data[i], z)
-        y = y[0:20]
+        y = y[0:20]             # also here
         processed_box_data = np.append(processed_box_data, y)
     return processed_box_data
 
@@ -198,7 +203,6 @@ def create_model(anchors, class_names, load_pretrained=True, freeze_body=True):
          matching_boxes_input], model_loss)
     
     model.summary()
-    #stop
 
     return model_body, model
 
@@ -212,10 +216,6 @@ def train(model, class_names, anchors, image_data, boxes, detectors_mask, matchi
 
     best weights according to val_loss is saved as trained_stage_3_best.h5
     '''
-    print('content of boxes')
-    #print(boxes[1])
-    print(boxes.shape)
-    
     
     model.compile(
         optimizer='adam', loss={
@@ -226,9 +226,10 @@ def train(model, class_names, anchors, image_data, boxes, detectors_mask, matchi
     logging = TensorBoard()
     checkpoint = ModelCheckpoint("trained_stage_3_best.h5", monitor='val_loss',
                                  save_weights_only=True, save_best_only=True)
+
+    #uncomment following line to implement early stopping 
     #early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=15, verbose=1, mode='auto')
     
-    '''
     model.fit([image_data, boxes, detectors_mask, matching_true_boxes],
               np.zeros(len(image_data)),
               validation_split=validation_split,
@@ -256,7 +257,6 @@ def train(model, class_names, anchors, image_data, boxes, detectors_mask, matchi
               callbacks=[logging])
 
     model.save_weights('trained_stage_2.h5')
-    '''
     
     model.fit([image_data, boxes, detectors_mask, matching_true_boxes],
               np.zeros(len(image_data)),
@@ -285,7 +285,6 @@ def draw(model_body, class_names, anchors, image_data, image_set='val',
         ValueError("draw argument image_set must be 'train', 'val', or 'all'")
         
     # model.load_weights(weights_name)
-    print(image_data.shape)
     model_body.load_weights(weights_name)
 
     # Create output variables for prediction.
